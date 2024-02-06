@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Наложение водяного знака</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+<h1>Наложение водяного знака</h1>
+<form class="row g-3" method="post" action="http://127.0.0.1:8000/uploadfile/" enctype="multipart/form-data">
+    <div class="container">
+        <div class="mb-3">
+            <label for="wm_file" class="form-label">Выберите файл "водяного знака"</label>
+            <input required class="form-control" type="file" id="wm_file" name="wm_file">
+        </div>
+
+        <div class="selector">
+            <label for="wmPlace" class="form-label">Выберите место нанесения <i>"водяного знака"</i></label>
+            <select id="wmPlace" class="form-select">
+                <option value="1">Слева-вверху</option>
+                <option value="2">Справа-вверху</option>
+                <option selected value="3">По центру</option>
+                <option value="4">Слева-снизу</option>
+                <option value="5">Справа-снизу</option>
+            </select>
+        </div>
+
+        <div class="multi">
+            <div class="mb-3">
+                <label for="formFileMultiple" class="form-label">Выберите файлы для обработки</label>
+                <input required class="form-control" type="file" id="formFileMultiple" multiple>
+            </div>
+        </div>
+
+        <div class="submit">
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary mb-3">Выполить наложение</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+</html>
