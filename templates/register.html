@@ -1,0 +1,23 @@
+{% extends "index.html" %}
+{% block body %}
+  <h1 align="center">Регистрация на сайте</h1>
+{% for error in errors %}
+    <p style="color: red">{{ error }}</p>
+{% endfor %}
+<form class="px-4 py-3" action="/auth/register" method="post">
+    <div class="mb-3">
+        <label for="exampleUsername" class="form-label">Введите ваш username</label>
+        <input class="form-control" id="exampleUsername" placeholder="Username" name="username" value="{{ username }}" required>>
+    </div>
+    <div class="mb-3">
+        <label for="exampleDropdownFormPassword1" class="form-label">Пароль</label>
+        <input type="password" class="form-control" id="exampleDropdownFormPassword1" placeholder="Password" name="password" required>
+    </div>
+    <div class="mb-3">
+        <label for="exampleDropdownFormPassword2" class="form-label">Повторите ввод пароля</label>
+        <input type="password" class="form-control" id="exampleDropdownFormPassword2" placeholder="Password" name="password2" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+</form>
+{% endblock %}

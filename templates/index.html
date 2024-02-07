@@ -12,9 +12,6 @@
     <div class="container-fluid">
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/">Home</a>
-                </li>
                 {% if user %}
                 <li class="nav-item">
                     <a class="nav-link" href="#">Мои изображения</a>
@@ -25,7 +22,13 @@
 
                 {% else %}
                 <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/">Home</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="/auth/login">Войти на сайт</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/register">Регистрация</a>
                 </li>
                 {% endif %}
             </ul>
@@ -69,7 +72,7 @@
 </form>
 
 {% else %}
-<div>
+<div class="mb-3">
     Для работы с изображениями требуется сначала <a class="nav-link" href="/auth/login">авторизоваться</a>
 </div>
 {% endif %}

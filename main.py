@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 
+from dao.db import create_user_db
 from dao.models import User
 from src.auth.auth import router as auth_router, get_current_user_from_cookie, get_current_user_from_token, \
     login_for_access_token
@@ -83,9 +84,9 @@ class LoginForm:
     async def is_valid(self):
         # if not self.username or not (self.username.__contains__("@")):
         if not self.username:
-            self.errors.append("Требуется ввода username")
+            self.errors.append("Требуется ввод username")
         if not self.password:
-            self.errors.append("Требуется ввода пароля")
+            self.errors.append("Требуется ввод пароля")
         if not self.errors:
             return True
         return False
@@ -117,3 +118,70 @@ async def login_get():
     response = RedirectResponse(url="/")
     response.delete_cookie(settings.COOKIE_NAME)
     return response
+
+
+# --------------------------------------------------------------------------
+# Register - GET
+# --------------------------------------------------------------------------
+@app.get("/auth/register", response_class=HTMLResponse)
+async def register_get(request: Request):
+    context = {
+        "request": request,
+    }
+    return templates.TemplateResponse("register.html", context)
+
+
+# --------------------------------------------------------------------------
+# Register - POST
+# --------------------------------------------------------------------------
+class RegisterForm:
+    def __init__(self, request: Request):
+        self.request: Request = request
+        self.errors: list = []
+        self.username: str | None = None
+        self.password: str | None = None
+        self.password2: str | None = None
+
+    async def load_data(self):
+        form = await self.request.form()
+        self.username = form.get("username")
+        self.password = form.get("password")
+        self.password2 = form.get("password2")
+
+    async def is_valid(self):
+        # if not self.username or not (self.username.__contains__("@")):
+        if not self.username:
+            self.errors.append("Требуется ввод username")
+        if not self.password:
+            self.errors.append("Требуется ввода пароля")
+        if not self.password2:
+            self.errors.append("Требуется ввода подтверждения пароля")
+        if self.password != self.password2:
+            self.errors.append("Пароли не совпадают!")
+        if not self.errors:
+            return True
+        return False
+
+
+@app.post("/auth/register", response_class=HTMLResponse)
+async def login_post(request: Request):
+    form = RegisterForm(request)
+    await form.load_data()
+    if await form.is_valid():
+        try:
+            response = RedirectResponse("/", status.HTTP_302_FOUND)
+            user = await create_user_db(form.username, form.password)
+            if not user:
+                form.__dict__.update(msg="")
+                form.__dict__.get("errors").append("Ошибка регистрации пользователя")
+                return templates.TemplateResponse("register.html", form.__dict__)
+            else:
+                await login_for_access_token(response=response, form_data=form)
+                form.__dict__.update(msg="Успешная регистрация!")
+                logging.info("Успешная регистрация!")
+                return response
+        except HTTPException:
+            form.__dict__.update(msg="")
+            form.__dict__.get("errors").append("Incorrect Email or Password")
+            return templates.TemplateResponse("register.html", form.__dict__)
+    return templates.TemplateResponse("register.html", form.__dict__)
