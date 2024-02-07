@@ -2,7 +2,6 @@ import os
 
 from fastapi import FastAPI, UploadFile, Request, Depends
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from pathlib import Path
 
 from dao.models import User
