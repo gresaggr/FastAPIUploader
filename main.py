@@ -7,6 +7,7 @@ from pathlib import Path
 
 from dao.models import User
 from src.api.login import router as login_router
+from src.api.register import router as register_router
 from src.auth.auth import get_current_user_from_cookie, get_current_user_from_token
 from src.logger import set_logger
 from src.settings import templates
@@ -17,6 +18,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 set_logger()
 app = FastAPI()
 app.include_router(login_router)
+app.include_router(register_router)
 
 
 @app.post('/uploadfile')
