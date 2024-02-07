@@ -2,6 +2,7 @@ from environs import Env
 from pathlib import Path
 from pydantic_settings import BaseSettings
 from pydantic import BaseModel
+from starlette.templating import Jinja2Templates
 
 env = Env()
 env.read_env()  # не обязательно указывать путь (найдет даже в родительской)
@@ -9,6 +10,8 @@ env.read_env()  # не обязательно указывать путь (на�
 BASE_DIR = Path(__file__).parent.parent
 
 DB_PATH = BASE_DIR / "users.sqlite"
+
+templates = Jinja2Templates(directory="templates")
 
 
 class DbSettings(BaseModel):
