@@ -8,7 +8,9 @@ from fastapi.security.utils import get_authorization_scheme_param
 from jose import JWTError, jwt
 from passlib.handlers.sha2_crypt import sha512_crypt as crypto
 
-from models.models import User, get_user
+from dao.models import User
+
+from dao.db import get_user_db
 from src.settings import settings
 
 log = logging.getLogger(__name__)
@@ -82,8 +84,8 @@ def create_access_token(data: dict) -> str:
     return encoded_jwt
 
 
-def authenticate_user(username: str, plain_password: str) -> User | bool:
-    user = get_user(username)  # здесь берется из жестко заданных пользователей. TODO: добавить подключение к базе
+async def authenticate_user(username: str, plain_password: str) -> User | bool:
+    user = await get_user_db(username)
     if not user:
         return False
     if not crypto.verify(plain_password, user.hashed_password):
@@ -91,7 +93,7 @@ def authenticate_user(username: str, plain_password: str) -> User | bool:
     return user
 
 
-def decode_token(token: str) -> User:
+async def decode_token(token: str) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials."
@@ -106,22 +108,22 @@ def decode_token(token: str) -> User:
         print(e)
         raise credentials_exception
 
-    user = get_user(username)
+    user = await get_user_db(username)
     return user
 
 
-def get_current_user_from_token(token: str = Depends(oauth2_scheme)) -> User:
+async def get_current_user_from_token(token: str = Depends(oauth2_scheme)) -> User:
     """
     Get the current user from the cookies in a request.
 
     Use this function when you want to lock down a route so that only
     authenticated users can see access the route.
     """
-    user = decode_token(token)
+    user = await decode_token(token)
     return user
 
 
-def get_current_user_from_cookie(request: Request) -> User:
+async def get_current_user_from_cookie(request: Request) -> User:
     """
     Get the current user from the cookies in a request.
 
@@ -129,16 +131,16 @@ def get_current_user_from_cookie(request: Request) -> User:
     for views that should work for both logged in, and not logged-in users.
     """
     token = request.cookies.get(settings.COOKIE_NAME)
-    user = decode_token(token)
+    user = await decode_token(token)
     return user
 
 
 @router.post("token")
-def login_for_access_token(
+async def login_for_access_token(
         response: Response,
         form_data: OAuth2PasswordRequestForm = Depends()
 ) -> dict[str, str]:
-    user = authenticate_user(form_data.username, form_data.password)
+    user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
     access_token = create_access_token(data={"username": user.username})  # посмотреть можно здесь https://jwt.io/

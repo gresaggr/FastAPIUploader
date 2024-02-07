@@ -399,3 +399,4 @@ cython_debug/
 #.idea/
 
 !/templates/boot_index.html
+!/users.sqlite

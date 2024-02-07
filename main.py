@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 
-from models.models import User
+from dao.models import User
 from src.auth.auth import router as auth_router, get_current_user_from_cookie, get_current_user_from_token, \
     login_for_access_token
 from src.logger import set_logger
@@ -29,9 +29,9 @@ async def create_upload_file(wm_file: UploadFile):
 
 
 @app.get("/", response_class=HTMLResponse)
-def index(request: Request):
+async def index(request: Request):
     try:
-        user = get_current_user_from_cookie(request)
+        user = await get_current_user_from_cookie(request)
     except:
         user = None
     context = {
@@ -46,7 +46,7 @@ def index(request: Request):
 # --------------------------------------------------------------------------
 # A private page that only logged-in users can access.
 @app.get("/private", response_class=HTMLResponse)
-def index(request: Request, user: User = Depends(get_current_user_from_token)):
+async def index(request: Request, user: User = Depends(get_current_user_from_token)):
     context = {
         "user": user,
         "request": request
@@ -58,7 +58,7 @@ def index(request: Request, user: User = Depends(get_current_user_from_token)):
 # Login - GET
 # --------------------------------------------------------------------------
 @app.get("/auth/login", response_class=HTMLResponse)
-def login_get(request: Request):
+async def login_get(request: Request):
     context = {
         "request": request,
     }
@@ -98,7 +98,7 @@ async def login_post(request: Request):
     if await form.is_valid():
         try:
             response = RedirectResponse("/", status.HTTP_302_FOUND)
-            login_for_access_token(response=response, form_data=form)
+            await login_for_access_token(response=response, form_data=form)
             form.__dict__.update(msg="Успешная авторизация!")
             logging.info("Успешная авторизация")
             return response
@@ -113,7 +113,7 @@ async def login_post(request: Request):
 # Logout
 # --------------------------------------------------------------------------
 @app.get("/auth/logout", response_class=HTMLResponse)
-def login_get():
+async def login_get():
     response = RedirectResponse(url="/")
     response.delete_cookie(settings.COOKIE_NAME)
     return response
